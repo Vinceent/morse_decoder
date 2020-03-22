@@ -9,6 +9,8 @@
 #include<cstring>
 #include<set>
 #include<chrono>
+#include<array>
+#include<queue>
 #define POS_CASE
 using namespace std;
 
@@ -16,6 +18,10 @@ bool can_split(vector<string>&, string::iterator&, string::iterator&, string::it
 bool can_split_index(const vector<string>&, size_t, size_t, size_t, const string&);
 void make_first_valid(const string&, string&);
 void split(string, size_t, bool, vector<string>&, vector<string>&, size_t&);
+bool if_one_space_diff(const string& s1, const string& s2);
+vector<vector<int>> make_graph(const vector<string>& valids);
+vector<vector<int>> BFS_alg(vector<vector<int>>& graph);
+
 size_t fill_valid(string& undecoded, vector<string>& valid_lines, vector<string>& morse_table)
 {
 	size_t counter =0;
@@ -89,6 +95,18 @@ void make_first_valid(const string& coded, string& valid)
 	}
 }
 
+bool if_one_space_diff(const string& s1, const string& s2)
+{
+        size_t pos=0;
+        while((pos !=min(s1.size(), s2.size())) && s1[pos] == s2[pos]){
+                        ++pos;
+        }
+        if(pos == min(s1.size(), s2.size())) { return false;}
+        return (s1[pos] ==' ')?
+                (s1.substr(pos+1) == s2.substr(pos)):
+                (s1.substr(pos) == s2.substr(pos+1));
+
+}
 
 void clown_fiesta(string str, vector<string>& vault, const set<string>& m_table, vector<vector<string>> &valid_seqs, size_t start_pos = 0)
 {
@@ -115,6 +133,18 @@ void clown_fiesta(string str, vector<string>& vault, const set<string>& m_table,
 	}
 }
 
+vector<vector<int>> make_graph(const vector<string>& valids)
+{
+	size_t valid_count = valids.size();
+	vector<vector<int>> graph(valid_count);
+	for(size_t raws =0; raws!=valid_count;++raws) {
+		for(size_t columns =0; columns!=valid_count; ++columns) {
+			graph[raws].push_back( if_one_space_diff(valids[raws], valids[columns]));
+		}
+	}
+	return graph;
+}
+
 string form_letters(stringstream& ss,const string& m_str, const vector<pair<char,string>>& m_codes) 
 {
 	ss.str(m_str);
@@ -128,6 +158,57 @@ string form_letters(stringstream& ss,const string& m_str, const vector<pair<char
 	ss.clear();	
 	return ret_str;
 }
+
+
+vector<vector<int>> BFS_alg(vector<vector<int>>& graph)
+{
+	enum {WHITE, GRAY, BLACK};
+	vector<vector<int>> spanning_tree(graph.size());
+	for(auto& x:spanning_tree) {
+		x.assign(graph.size(),0);
+	}
+	vector<int> colors(graph.size(), WHITE);
+	colors[0] = GRAY;
+	queue<int> vert_in_progress;
+	vert_in_progress.push(0);
+	while(!vert_in_progress.empty()) {
+		cout<<"size of queue: "<<vert_in_progress.size()<<endl;
+		int index = vert_in_progress.front();
+		vert_in_progress.pop();
+		cout<<"pop. "<<"size of a queue: "<<vert_in_progress.size()<<endl;
+		auto it = graph[index].begin();
+		while((it = find(it, graph[index].end(), 1))!=graph[index].end()) {
+			size_t next_vert_pos = distance(graph[index].begin(), it);
+			cout<<"nextvpos: "<<next_vert_pos<<endl;
+			++it;
+			cout<<"colors: ";
+			for_each(colors.begin(), colors.end(), [](int i) { cout<<i<<' ';});
+			cout<<endl;
+			if (colors[next_vert_pos] == WHITE) {
+				
+				colors[next_vert_pos] =GRAY;
+				spanning_tree[index][next_vert_pos] = spanning_tree[next_vert_pos][index] = 1;
+				vert_in_progress.push(next_vert_pos);
+			}
+		}
+		colors[index] = BLACK;
+	}	
+	return spanning_tree;
+}
+
+void outp_vv_int(vector<vector<int>> & vec) 
+{
+	for(size_t i =0; i!=vec.size();++i) {
+		for(size_t j =0; j!=vec[i].size();++j) {
+			cout<<vec[i][j]<<' ';
+			//cout<<(vec[i][j]?'#':' ');
+		}
+		cout<<endl;
+	}
+}
+
+
+
 int main()
 {
 	string inp;
@@ -169,15 +250,32 @@ int main()
 	const size_t BUF_SIZE = 16000;
 	buffer.reserve(BUF_SIZE);
 	stringstream sym_buf;
-	for(auto it = valid_seqs[0].begin(); it!=valid_seqs[0].end(); ++it) {
-		if( buffer.size() + (*it).size()*2 +1 > BUF_SIZE) {
-			out_file<<buffer;
-			buffer.resize(0);
+	for(auto it = valid_seqs[0].begin(); it!=valid_seqs[0].end(); ++it)
+	{
+		out_file<<*it<<"\t\t";
+		stringstream let(*it);
+		string sym;
+		while(let>>sym) {
+			for(auto& x:letters){
+				if(sym==x.second) {out_file<<std::right<<x.first<<' ';}
+			}
 		}
-		buffer.append(*it).append(2,'\t').append(form_letters(sym_buf,*it,letters)).append(1,'\n');
+		out_file<<endl;
 	}
-	cout<<valid_seqs[0].size()<<" lines was generated\n";
-/*	for(auto it = valid_seqs[0].begin(); it!=valid_seqs[0].end(); ++it)
+
+	const size_t valid_count = valid_seqs[0].size();
+	cout<<valid_count<<" lines was generated\n";
+	//int **graph_one_space =new int[valid_count][valid_count]; 	//	TODO:the data structure is not determined
+	vector<vector<int>> graph_one_space = make_graph(valid_seqs[0]);	
+	outp_vv_int(graph_one_space);
+
+	vector<vector<int>> spanning_tree = BFS_alg(graph_one_space);
+	cout<<endl;
+	outp_vv_int(spanning_tree);
+
+
+/*
+	for(auto it = valid_seqs[0].begin(); it!=valid_seqs[0].end(); ++it)
 	{
 		out_file<<*it<<"\t\t";
 		stringstream let(*it);
@@ -198,7 +296,7 @@ int main()
 		while(let>>sym) {
 			for(auto& x:letters) {
 				if(sym==x.second) { out_file<<std::right<< x.first<<' ';}
-			}
+			/out}
 		}
 		out_file<<endl;
 	}
