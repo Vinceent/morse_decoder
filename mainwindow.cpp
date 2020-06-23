@@ -70,7 +70,7 @@ void MainWindow::on_fileButton_clicked()
 
 }
 
-static std::string buff_vec_str_outp(std::ofstream& ofs, const size_t buffer_size, const std::vector<std::string>& outp_vector)
+static std::string buff_vec_str_outp(std::ofstream& ofs, const size_t buffer_size, const QVector<std::string>& outp_vector)
 //buffered file output
 {
     std::string buffer;
@@ -111,7 +111,7 @@ void MainWindow::on_computeButton_clicked()
     }
     MorseDecoder Decoder(m_table, code_string);
     auto run_t1 = std::chrono::high_resolution_clock::now();
-    std::vector<std::string>& valids = Decoder.result();
+    QVector<std::string>& valids = Decoder.result();
     auto run_t2 = std::chrono::high_resolution_clock::now();
     ui->headLabel->setText("Done!");
     ui->label_2->setText(QString::number( valids.size()) +" lines were generated.");

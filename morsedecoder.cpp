@@ -7,7 +7,7 @@ MorseDecoder::MorseDecoder(const std::set<std::string>& t, const std::string& s)
     code_limit = std::max_element(t.cbegin(), t.cend(), [](const std::string& f, const std::string& s){return f.size()<s.size();})->size() +1;
     valid_steps.resize(s.size()+1);
 }
-std::vector<std::string>& MorseDecoder::result()
+QVector<std::string>& MorseDecoder::result()
 {
     decode();
     return valid_steps[0];
