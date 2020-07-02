@@ -16,6 +16,22 @@ struct graph_data{
 
 };
 
+QDataStream &operator<<(QDataStream&os, const std::string &str)
+{
+    os <<str.c_str();
+    return os;
+}
+
+QDataStream &operator>>(QDataStream& os, std::string &str)
+{
+    char *data;
+    os>>data;
+    str = data;
+    delete[] data; //Space for the string is allocated using new [] -- the caller must destroy it with delete [].
+    data = nullptr;
+    return os;
+}
+
 QDataStream &operator<<(QDataStream &os, const graph_data& grd)
 {
     os<<QString::fromStdString(grd.morse_line)<<grd.valids<<grd.graph<<grd.spanning_tree;

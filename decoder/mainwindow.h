@@ -21,11 +21,14 @@ private slots:
 
     void on_computeButton_clicked();
 
+    void on_logButton_clicked();
+
 private:
+    void set_code_strings(std::ifstream&);
     std::set<std::string> m_table;
     Ui::MainWindow *ui;
     std::string code_filename;
-    std::string code_string;
+    QVector<std::string> code_strings;
 
 };
 #endif // MAINWINDOW_H
