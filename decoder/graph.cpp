@@ -68,3 +68,17 @@ QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
     }
     return data.spanning_tree;
 }
+
+QByteArray Graph::getDataFromByteArr()
+{
+    QByteArray ret_ar;
+    QDataStream wdstr(&ret_ar, QIODevice::WriteOnly);
+    wdstr<<data;
+    return ret_ar;
+}
+
+void Graph::setDataFromByteArr(QByteArray &ba)
+{
+    QDataStream rdstr(ba);
+    rdstr>>data;
+}
