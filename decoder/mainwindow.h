@@ -24,7 +24,7 @@ private slots:
     void on_logButton_clicked();
 
 private:
-    void set_code_strings(std::ifstream&);
+    bool set_code_strings();
     std::set<std::string> m_table;
     Ui::MainWindow *ui;
     std::string code_filename;

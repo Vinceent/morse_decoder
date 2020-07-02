@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->fileButton->setIcon(QIcon::fromTheme("folder"));
     ui->lineEdit->setReadOnly(true);
     ui->headLabel->setText("Pick a file with the coded morse sequence.");
-    ui->computeButton->setHidden(true);
     ui->logBrowser->setHidden(true);
     ui->label->clear();
     ui->label_2->clear();
@@ -46,44 +45,34 @@ void MainWindow::on_fileButton_clicked()
 {
     ui->label_2->clear();
     code_filename = QFileDialog::getOpenFileName(this, "", "~/").toLocal8Bit().constData();     //Convert to cstring, then construct the std::string.
-    std::ifstream inp_f(code_filename);
-    if(!inp_f.is_open()) {
-        QMessageBox::question(this, "Error!", "The file wasn't opened.", QMessageBox::Ok);
-        return;
-
-    }
-    set_code_strings(inp_f);
-//    getline(inp_f, code_string);                                                                //The code file should only contain one string.
-//    if(code_string.find_first_not_of(".-")!=std::string::npos) {
-//        code_string = "";
-//        ui->label->setText("ERROR:\nFile contains non-morse symbols.\nPlease, pick andother file.");
-//        ui->computeButton->setHidden(true);
-//        return ;
-//    }
-//    if(code_string.empty()) {
-//        ui->label->setText("ERROR:\nThe file is empty.");
-//        ui->computeButton->setHidden(true);
+    ui->lineEdit->setText(QString(code_filename.c_str()));
+//    std::ifstream inp_f(code_filename);
+//    if(!inp_f.is_open()) {
+//        QMessageBox::question(this, "Error!", "The file wasn't opened.", QMessageBox::Ok);
 //        return;
-//    }
-//    ui->label->clear();
-//    ui->headLabel->setText("Now you're able to compute the strings.");
-//    ui->computeButton->setHidden(false);
-//    ui->lineEdit->setText(QString(code_filename.c_str()));
 
+//    }
+//    set_code_strings(inp_f);
 }
 
-void MainWindow::set_code_strings(std::ifstream &fs)
+bool MainWindow::set_code_strings()
 {
+    code_strings.clear();
+    std::ifstream fs(code_filename);
+    if(!fs.is_open()) {
+        QMessageBox::question(this, "Error!", "The file wasn't opened.", QMessageBox::Ok);
+        return false;
+
+    }
+    bool ok = true;
     std::string temp;
     size_t counter =0;
-    ui->computeButton->setHidden(true);
     ui->logBrowser->clear();
     std::string::size_type pos;
     while(getline(fs, temp)) {
         pos = (temp.find_first_not_of(".-"));
         if(pos!=std::string::npos) {
-            ui->logBrowser->append(QString("Error:line %1 contains a non-morse symbol on pos %2, skipped").arg(counter).arg(pos +1));
-            code_strings.clear();
+            ui->logBrowser->append(QString("Error:line %1 contains a non-morse symbol on pos %2, skipped").arg(counter +1).arg(pos +1));
         } else if (temp.size()!=0) {
             code_strings.push_back(temp);
         }
@@ -91,19 +80,21 @@ void MainWindow::set_code_strings(std::ifstream &fs)
     }
     if(counter ==0) {
         ui->label->setText("ERROR:\nThe file is empty.");
+        ok = false;
     } else if(!ui->logBrowser->toPlainText().isEmpty()) {
         ui->label->setText("Non-morse lines encountered, check logs.");
         if(code_strings.isEmpty()) {
             ui->label->setText("ERROR:\nno valid lines found, check logs.");
+            ok = false;
         }
-    } else {
+    } else if (ok){
         ui->label->clear();
         ui->headLabel->setText(QString
                                ("%1 valid strings were read.\nNow you're able to compute morse strings.")
                                .arg(code_strings.size()));
-        ui->computeButton->setHidden(false);
-        ui->lineEdit->setText(QString(code_filename.c_str()));
     }
+    fs.close();
+    return ok;
 }
 
 static std::ofstream& buff_vec_str_outp(std::ofstream& ofs, const size_t buffer_size, const QVector<std::string>& outp_vector)
@@ -124,12 +115,16 @@ static std::ofstream& buff_vec_str_outp(std::ofstream& ofs, const size_t buffer_
 
 void MainWindow::on_computeButton_clicked()
 {
-    std::string save_filename(code_filename ,code_filename.find_last_of("/")+1);            //Gettin a filename from the absolute path
-    save_filename.insert(0, "decoded_");
+
+    if(!set_code_strings()) {
+        return;
+    }
+    std::string::size_type slash_pos = code_filename.find_last_of("/");
+    std::string save_filename("decoded_" +std::string(code_filename ,slash_pos+1)); //Gettin a filename from the absolute path
     std::ofstream out_f(save_filename);
     size_t generated_count = 0;
-    std::string full_filename(code_filename,0,code_filename.find_last_of("/"));
-    full_filename+=save_filename;
+    std::string full_filename(std::string(code_filename,0,slash_pos+1) + save_filename);
+    std::string delim(80, '=');
     qDebug()<<full_filename.c_str();
     if(!out_f.is_open()) {
         QMessageBox::question(this, "Error!","The output file wasn't opened/generated for some reason.\n"
@@ -138,13 +133,17 @@ void MainWindow::on_computeButton_clicked()
         return;
     }
     for(int i =0; i!=code_strings.size(); ++i) {
+        if(i) {
+            out_f<<'\n'<<delim<<'\n';
+        }
         std::string &code_string = code_strings[i];
+        out_f<<"String "<< i<<'('<<code_string<<"):\n";
         if(code_string.size()>25) {
-            auto answ = QMessageBox::question(this, "Warning!", "The chosen sequence is longer than 25 symbols.\n"
+            auto answ = QMessageBox::question(this, "Warning!",QString("The line № %1 is longer than 25 symbols.\n"
                                                                 "It might cause lags due to enormous memory consuption\n"
-                                                                "Do you wish to proceed with the current sequence?",QMessageBox::No| QMessageBox::Yes);
-            if(answ == QMessageBox::No ) {
-                return;
+                                                                "Skip it?").arg(i+1),QMessageBox::No| QMessageBox::Yes);
+            if(answ == QMessageBox::Yes ) {
+                continue;
             }
         }
         ui->headLabel->setText("Processing...");
@@ -157,15 +156,17 @@ void MainWindow::on_computeButton_clicked()
 
         ui->headLabel->setText("Done!");
         generated_count+=valids.size();
+
         auto save_t1 = std::chrono::high_resolution_clock::now();
-        ui->logBrowser->append( QString("%1 lines generated from %2\n").arg(valids.size()).arg(code_string.c_str()));
         buff_vec_str_outp(out_f, 16000,valids);
         auto save_t2 = std::chrono::high_resolution_clock::now();
+
+        ui->logBrowser->append( QString("%1 lines generated from (%2) on line %3 of valid strings").arg(valids.size()).arg(code_string.c_str()).arg(i +1));
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
-        qDebug() << duration_run<<" msec was the computation running\n";
-        qDebug() << duration_save<<" msec was the data begin saved\n";
+        out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
     }
+    ui->label->setText("valid morse strings saved at:\n" + QString::fromStdString(full_filename));
     ui->label_2->setText(QString::number(generated_count) +" lines were generated.");
     out_f.close();
 }
