@@ -165,10 +165,26 @@ void MainWindow::on_computeButton_clicked()
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
         out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
+
+        graphs.push_back({code_string, valids});
     }
     ui->label->setText("valid morse strings saved at:\n" + QString::fromStdString(full_filename));
     ui->label_2->setText(QString::number(generated_count) +" lines were generated.");
     out_f.close();
+//testing area
+    QByteArray a= graphs[0].getDataFromByteArr();
+    QDataStream w(a);
+    graph_data d;
+    w>>d;
+    qDebug()<<QString::fromStdString(d.morse_line);
+    qDebug()<<d.valids;
+    for(auto&x :d.graph) {
+        qDebug()<<x;
+    }
+    qDebug()<<'\n';
+    for(auto &x: d.spanning_tree) {
+        qDebug()<<x;
+    }
 }
 
 

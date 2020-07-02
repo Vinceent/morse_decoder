@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <set>
 #include <QVector>
+#include "graph.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -29,6 +30,7 @@ private:
     Ui::MainWindow *ui;
     std::string code_filename;
     QVector<std::string> code_strings;
+    QVector<Graph> graphs;
 
 };
 #endif // MAINWINDOW_H

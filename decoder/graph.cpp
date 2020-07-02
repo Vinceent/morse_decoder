@@ -1,12 +1,11 @@
 #include "graph.h"
 
-
 Graph::Graph(const std::string &line, const QVector<std::string> &valid_strings)
 {
     data.morse_line = line;
     data.valids = valid_strings;
     makeGraph(data.valids);
-
+    BFS(data.graph);
 }
 
 
@@ -69,6 +68,36 @@ QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
     return data.spanning_tree;
 }
 
+QDataStream &operator<<(QDataStream&os, const std::string &str)
+{
+    os <<str.c_str();
+    return os;
+}
+
+QDataStream &operator>>(QDataStream& os, std::string &str)
+{
+    char *data;
+    os>>data;
+    str = data;
+    delete[] data; //Space for the string is allocated using new [] -- the caller must destroy it with delete [].
+    data = nullptr;
+    return os;
+}
+
+QDataStream &operator<<(QDataStream &os, const graph_data& grd)
+{
+    os<<QString::fromStdString(grd.morse_line)<<grd.valids<<grd.graph<<grd.spanning_tree;
+    return os;
+}
+
+QDataStream &operator>>(QDataStream &is, graph_data& grd)
+{
+    QString temp;
+    is>>temp>>grd.valids>>grd.graph>>grd.spanning_tree;
+    grd.morse_line = temp.toStdString();
+    return is;
+}
+
 QByteArray Graph::getDataFromByteArr()
 {
     QByteArray ret_ar;
@@ -81,4 +110,10 @@ void Graph::setDataFromByteArr(QByteArray &ba)
 {
     QDataStream rdstr(ba);
     rdstr>>data;
+}
+
+QDebug &operator<<(QDebug &d, const std::string &str)
+{
+    d<<QString::fromStdString(str);
+    return d;
 }
