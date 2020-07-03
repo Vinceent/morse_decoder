@@ -26,7 +26,8 @@ public:
     Graph& operator=(const Graph&& g){data = std::move(g.data); return *this;}
     Graph(const std::string &line,const QVector<std::string> &valis_strings);
     QByteArray getDataFromByteArr();
-    void setDataFromByteArr(QByteArray& ba);
+    Graph& setDataFromByteArr(QByteArray& ba);
+    graph_data & getData() {return data;}
 private:
     QVector<QVector<int>> makeGraph(QVector<std::string>&);
     QVector<QVector<int>> BFS(QVector<QVector<int>> graph);

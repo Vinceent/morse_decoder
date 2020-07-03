@@ -5,6 +5,7 @@
 #include <set>
 #include <QVector>
 #include "graph.h"
+#include <QLocalSocket>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,6 +24,8 @@ private slots:
     void on_computeButton_clicked();
 
     void on_logButton_clicked();
+
+    void on_visualButton_clicked();
 
 private:
     bool set_code_strings();

@@ -106,10 +106,11 @@ QByteArray Graph::getDataFromByteArr()
     return ret_ar;
 }
 
-void Graph::setDataFromByteArr(QByteArray &ba)
+Graph& Graph::setDataFromByteArr(QByteArray &ba)
 {
     QDataStream rdstr(ba);
     rdstr>>data;
+    return *this;
 }
 
 QDebug &operator<<(QDebug &d, const std::string &str)

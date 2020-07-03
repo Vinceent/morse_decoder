@@ -143,6 +143,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="visualButton">
+        <property name="text">
+         <string>Visualize</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="cancelButton">

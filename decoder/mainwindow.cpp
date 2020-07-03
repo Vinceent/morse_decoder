@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->visualButton->setHidden(true);
     ui->fileButton->setIcon(QIcon::fromTheme("folder"));
     ui->lineEdit->setReadOnly(true);
     ui->headLabel->setText("Pick a file with the coded morse sequence.");
@@ -117,6 +118,7 @@ void MainWindow::on_computeButton_clicked()
 {
 
     if(!set_code_strings()) {
+        ui->visualButton->setHidden(true);
         return;
     }
     std::string::size_type slash_pos = code_filename.find_last_of("/");
@@ -125,7 +127,7 @@ void MainWindow::on_computeButton_clicked()
     size_t generated_count = 0;
     std::string full_filename(std::string(code_filename,0,slash_pos+1) + save_filename);
     std::string delim(80, '=');
-    qDebug()<<full_filename.c_str();
+
     if(!out_f.is_open()) {
         QMessageBox::question(this, "Error!","The output file wasn't opened/generated for some reason.\n"
                                              "Check the setting of the folder.", QMessageBox::Ok);
@@ -165,12 +167,14 @@ void MainWindow::on_computeButton_clicked()
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
         out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
-
-        graphs.push_back({code_string, valids});
+        if(code_string.size() <6) {
+            graphs.push_back({code_string, valids});
+        }
     }
     ui->label->setText("valid morse strings saved at:\n" + QString::fromStdString(full_filename));
     ui->label_2->setText(QString::number(generated_count) +" lines were generated.");
     out_f.close();
+    ui->visualButton->setHidden(false);
 //testing area
     QByteArray a= graphs[0].getDataFromByteArr();
     QDataStream w(a);
@@ -198,4 +202,25 @@ void MainWindow::on_logButton_clicked()
         ui->logButton->setArrowType(Qt::ArrowType::RightArrow);
         ui->logBrowser->setHidden(true);
     }
+}
+
+void MainWindow::on_visualButton_clicked()
+{
+    QLocalSocket *sock =new QLocalSocket(this);
+    sock->connectToServer("me serv");
+    for(int i =0; i!=10; ++i) {
+        if(!sock->waitForConnected()) {
+            qDebug()<<"Connection error:"<< sock->error();
+            ui->logBrowser->append("Unable to connect, trying again\n");
+            return;
+        }
+    }
+    size_t graph_amount = graphs.size();
+    sock->write((char*)&graph_amount, sizeof(graph_amount));
+    QDataStream outp_stream(sock);
+    for(auto &x: graphs) {
+        outp_stream<<x.getDataFromByteArr();
+    }
+    sock->disconnectFromServer();
+    sock->close();
 }
