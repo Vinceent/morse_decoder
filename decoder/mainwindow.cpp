@@ -8,6 +8,7 @@
 #include<QMessageBox>
 #include<chrono>
 #include<QDebug>
+#include<QThread>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -128,6 +129,7 @@ void MainWindow::on_computeButton_clicked()
     std::string full_filename(std::string(code_filename,0,slash_pos+1) + save_filename);
     std::string delim(80, '=');
 
+    graphs.clear();
     if(!out_f.is_open()) {
         QMessageBox::question(this, "Error!","The output file wasn't opened/generated for some reason.\n"
                                              "Check the setting of the folder.", QMessageBox::Ok);
@@ -167,7 +169,8 @@ void MainWindow::on_computeButton_clicked()
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
         out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
-        if(code_string.size() <6) {
+
+        if(code_string.size() <7) {
             graphs.push_back({code_string, valids});
         }
     }
@@ -175,20 +178,11 @@ void MainWindow::on_computeButton_clicked()
     ui->label_2->setText(QString::number(generated_count) +" lines were generated.");
     out_f.close();
     ui->visualButton->setHidden(false);
-//testing area
-    QByteArray a= graphs[0].getDataFromByteArr();
-    QDataStream w(a);
-    graph_data d;
-    w>>d;
-    qDebug()<<QString::fromStdString(d.morse_line);
-    qDebug()<<d.valids;
-    for(auto&x :d.graph) {
-        qDebug()<<x;
-    }
-    qDebug()<<'\n';
-    for(auto &x: d.spanning_tree) {
-        qDebug()<<x;
-    }
+    //YOU ENTER THE TESTING ZONE
+//    for(int i =0; i!=10; ++i) {
+//        on_visualButton_clicked();
+//        QThread::msleep(100);
+//    }
 }
 
 
@@ -207,20 +201,27 @@ void MainWindow::on_logButton_clicked()
 void MainWindow::on_visualButton_clicked()
 {
     QLocalSocket *sock =new QLocalSocket(this);
-    sock->connectToServer("me serv");
-    for(int i =0; i!=10; ++i) {
-        if(!sock->waitForConnected()) {
-            qDebug()<<"Connection error:"<< sock->error();
-            ui->logBrowser->append("Unable to connect, trying again\n");
-            return;
-        }
+    sock->connectToServer("UniqueServerName");
+    if(!sock->waitForConnected(1000000)) {
+        qDebug()<<"Connection error:"<< sock->error();
+        ui->logBrowser->append("Unable to connect, aborted\n");
+        return;
     }
+    ui->logBrowser->append(QString("sock %2 connected to %1\n").arg(sock->serverName()).arg(sock->objectName()));
     size_t graph_amount = graphs.size();
     sock->write((char*)&graph_amount, sizeof(graph_amount));
     QDataStream outp_stream(sock);
     for(auto &x: graphs) {
-        outp_stream<<x.getDataFromByteArr();
+       // outp_stream<<x.getDataFromByteArr();
+        outp_stream<<x.getData();
+        ui->logBrowser->append(QString::fromStdString(x.getData().morse_line) + " sent");
     }
-    sock->disconnectFromServer();
-    sock->close();
+    //sock->waitForBytesWritten(1000000);
+    connect(sock, &QLocalSocket::bytesWritten,sock, &QLocalSocket::disconnectFromServer);
+    connect(sock, &QLocalSocket::disconnected, sock, &QLocalSocket::close);
+    connect(sock, &QLocalSocket::disconnected, sock, &QObject::deleteLater);
+    //sock->disconnectFromServer();
+    //sock->close();
+    connect(sock, &QObject::destroyed,[this](){ ui->logBrowser->append("sock is disconnected and deleted\n");}); //controversial
+    //delete sock;
 }
