@@ -24,7 +24,7 @@ void HCWorker::read_when_ready()
     mutex.lock();
     qDebug()<<"mutex locked in thread";
     newdata.push_back({std::move(time),std::move(inp)});
-    data_model->layoutChanged();
+    data_model->layoutChanged();        //questionable decision
     qDebug()<<"mutex unlocked in thread";
     mutex.unlock();
     clientConnection->disconnectFromServer();

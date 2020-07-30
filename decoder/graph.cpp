@@ -25,7 +25,7 @@ QVector<QVector<int>> Graph::makeGraph(QVector<std::string>& valids)
 {
     size_t valid_count = valids.size();
     data.graph.resize(valid_count);
-    for(size_t raws =0; raws!=valid_count;++raws) {
+    for(size_t raws =0; raws!=valid_count;++raws){
         for(size_t columns =0; columns!=valid_count; ++columns) {
             data.graph[raws].push_back( is_one_space_diff(valids[raws], valids[columns]));
         }
