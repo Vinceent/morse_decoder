@@ -34,6 +34,7 @@ QVector<QVector<int>> Graph::makeGraph(QVector<std::string>& valids)
 }
 
 QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
+//поиск в ширину как простая и быстрая альтернатива для нахождения остовного дерева в невзвешенном графе
 {
     enum {WHITE, GRAY, BLACK};
     data.spanning_tree.resize(graph.size());
@@ -45,17 +46,12 @@ QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
     QQueue<int> vert_in_progress;
     vert_in_progress.enqueue(0);
     while(!vert_in_progress.empty()) {
-        //qDebug()<<"size of queue: "<<vert_in_progress.size();
         int index = vert_in_progress.head();
         vert_in_progress.dequeue();
-        //qDebug()<<"pop. "<<"size of a queue: "<<vert_in_progress.size();
         auto it = graph[index].begin();
         while((it = std::find(it, graph[index].end(), 1))!=graph[index].end()) {
             size_t next_vert_pos = std::distance(graph[index].begin(), it);
-            //qDebug()<<"nextvpos: "<<next_vert_pos;
             ++it;
-            //qDebug()<<"colors: ";
-            std::for_each(colors.begin(), colors.end(), [](int i) { qDebug()<<i<<' ';});
             if (colors[next_vert_pos] == WHITE) {
 
                 colors[next_vert_pos] =GRAY;
@@ -79,7 +75,7 @@ QDataStream &operator>>(QDataStream& os, std::string &str)
     char *data;
     os>>data;
     str = data;
-    delete[] data; //Space for the string is allocated using new [] -- the caller must destroy it with delete [].
+    delete[] data; //Место для строки выделено с помощью new [] -- вызывающий обязан уничтожить ее с помощью delete [].
     data = nullptr;
     return os;
 }

@@ -19,7 +19,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     void reply();
     ~MainWindow();
-    //void paintEvent(QPaintEvent *) override;
 
 private:
     QMutex acess_mutex;

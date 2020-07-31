@@ -13,8 +13,9 @@ public:
     explicit Canvas(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     void setGraph(const graph_data * gd) { data = gd; update();}
-    QVector<QPoint> getGraphVertices(const graph_data* dg);
+
 private:
+    QVector<QPoint> computeGraphVerticesPos(const graph_data* dg);
     const graph_data* data = nullptr;
 signals:
 

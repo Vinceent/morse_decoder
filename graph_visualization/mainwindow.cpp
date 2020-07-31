@@ -6,12 +6,12 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    acess_mutex.unlock();
     ui->setupUi(this);
     server = new QLocalServer(this);
 
     if(!server->listen("UniqueServerName")) {
-        QMessageBox::critical(this,"kk",server->errorString());
+        QMessageBox::critical(this,"Ошибка!","UniqueServerName: "+ server->errorString());
+        exit(0);
     }
     connect(server, &QLocalServer::newConnection,this, &MainWindow::handle_connection);
     msModel = new MessageListModel(recieved_data,this);
@@ -35,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::handle_connection()
 {
-    //qRegisterMetaType<QAbstractSocket::SocketState>();
     qDebug()<<"handle connection";
     QLocalSocket *new_connection = server->nextPendingConnection();
     if(new_connection->isOpen()) {

@@ -27,7 +27,7 @@ public:
     Graph(const std::string &line,const QVector<std::string> &valis_strings);
     QByteArray getDataFromByteArr();
     Graph& setDataFromByteArr(QByteArray& ba);
-    graph_data & getData() {return data;}
+    graph_data & getData() {return data;}       //нарушает инкапсуляцию, но экономит создание нескольких временных объектов
 private:
     QVector<QVector<int>> makeGraph(QVector<std::string>&);
     QVector<QVector<int>> BFS(QVector<QVector<int>> graph);

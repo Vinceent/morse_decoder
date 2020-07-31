@@ -5,7 +5,6 @@
 #include <QMutex>
 #include <../decoder/graph.h>
 #include <QLocalSocket>
-#include <QThread>
 #include <QTime>
 #include <messagelistmodel.h>
 class HCWorker : public QObject

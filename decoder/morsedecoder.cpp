@@ -69,4 +69,5 @@ const std::set<std::string>MorseDecoder::default_morse_table {
     "--...",
     "---..",
     "----.",
-    "-----"};
+    "-----"
+};

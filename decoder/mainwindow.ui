@@ -17,7 +17,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>MorseSeqDecoder</string>
+   <string>Morse Decoder Client</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -43,7 +43,7 @@
       <item>
        <widget class="QPushButton" name="computeButton">
         <property name="text">
-         <string>Compute</string>
+         <string>Вычислить</string>
         </property>
        </widget>
       </item>
@@ -145,7 +145,7 @@
       <item>
        <widget class="QPushButton" name="visualButton">
         <property name="text">
-         <string>Visualize</string>
+         <string>Визуализировать</string>
         </property>
        </widget>
       </item>
@@ -157,7 +157,7 @@
            <bool>true</bool>
           </property>
           <property name="text">
-           <string>Cancel</string>
+           <string>Завершить</string>
           </property>
           <property name="flat">
            <bool>false</bool>
@@ -169,16 +169,6 @@
      </layout>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>432</width>
-     <height>25</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

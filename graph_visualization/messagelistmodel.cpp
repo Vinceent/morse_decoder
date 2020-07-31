@@ -8,7 +8,6 @@ QVariant MessageListModel::data(const QModelIndex &index, int role) const
 
         if(role == Qt::DisplayRole) {
             return model_data.at(index.row()).first;
-            qDebug()<<"should've painted";
         }
     }
     return QVariant();
