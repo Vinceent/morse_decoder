@@ -45,16 +45,16 @@ QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
     QQueue<int> vert_in_progress;
     vert_in_progress.enqueue(0);
     while(!vert_in_progress.empty()) {
-        qDebug()<<"size of queue: "<<vert_in_progress.size();
+        //qDebug()<<"size of queue: "<<vert_in_progress.size();
         int index = vert_in_progress.head();
         vert_in_progress.dequeue();
-        qDebug()<<"pop. "<<"size of a queue: "<<vert_in_progress.size();
+        //qDebug()<<"pop. "<<"size of a queue: "<<vert_in_progress.size();
         auto it = graph[index].begin();
         while((it = std::find(it, graph[index].end(), 1))!=graph[index].end()) {
             size_t next_vert_pos = std::distance(graph[index].begin(), it);
-            qDebug()<<"nextvpos: "<<next_vert_pos;
+            //qDebug()<<"nextvpos: "<<next_vert_pos;
             ++it;
-            qDebug()<<"colors: ";
+            //qDebug()<<"colors: ";
             std::for_each(colors.begin(), colors.end(), [](int i) { qDebug()<<i<<' ';});
             if (colors[next_vert_pos] == WHITE) {
 

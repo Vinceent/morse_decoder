@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
         m_file.close();
     } else {
         QMessageBox::question(this, "The morse table wasn't found", "The folder should contain a file named \" morse\" \n"
-                                                                                "with format {letter} {code} on each line\nProgram interrupted.",QMessageBox::Ok);
-        exit(0);
+                                                                                "with format {letter} {code} on each line\nDefault table used.",QMessageBox::Ok);
+        m_table = MorseDecoder::default_morse_table;
     }
 
 }
