@@ -48,13 +48,7 @@ void MainWindow::on_fileButton_clicked()
     ui->label_2->clear();
     code_filename = QFileDialog::getOpenFileName(this, "", "~/").toLocal8Bit().constData();     //Convert to cstring, then construct the std::string.
     ui->lineEdit->setText(QString(code_filename.c_str()));
-//    std::ifstream inp_f(code_filename);
-//    if(!inp_f.is_open()) {
-//        QMessageBox::question(this, "Error!", "The file wasn't opened.", QMessageBox::Ok);
-//        return;
 
-//    }
-//    set_code_strings(inp_f);
 }
 
 bool MainWindow::set_code_strings()

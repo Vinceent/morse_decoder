@@ -26,6 +26,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->listView, &QListView::clicked,[this](){ui->listView_2->clearSelection();});
     connect(grModel, &GraphListModel::repaint_graph, ui->canvasWidget, &Canvas::setGraph);
     qDebug()<<"constructed";
+
+    QFont font = ui->listView->font();
+    font.setPointSize(font.pointSize()*1.3);
+    ui->listView->setFont(font);
+    ui->listView_2->setFont(font);
 }
 
 void MainWindow::handle_connection()
