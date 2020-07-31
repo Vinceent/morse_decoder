@@ -191,6 +191,7 @@ void MainWindow::on_visualButton_clicked()
     if(!sock->waitForConnected(1000000)) {
         ui->logBrowser->append("Ошибка подключения:" +sock->errorString() +'\n');
         ui->logBrowser->append("Не удалось подключится, завершение операции.\n");
+        ui->label->setText("Не удалось подключится к серверу");
         return;
     }
     ui->logBrowser->append(QString("Сокет %2 подключен к серверу %1\n").arg(sock->serverName()).arg(sock->objectName()));

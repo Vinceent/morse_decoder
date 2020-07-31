@@ -37,17 +37,15 @@ void MainWindow::handle_connection()
 {
     qDebug()<<"handle connection";
     QLocalSocket *new_connection = server->nextPendingConnection();
-    if(new_connection->isOpen()) {
 
-        QThread* thread = new QThread(this);
-        HCWorker* worker = new HCWorker(this,acess_mutex,recieved_data,new_connection, msModel);
-        connect(thread, &QThread::finished, worker, &QObject::deleteLater);
-        connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-        connect(thread, &QThread::started, worker, &HCWorker::handleConnection);
-        connect(worker, &HCWorker::finnished, thread, &QThread::quit);
-        connect(thread, &QThread::destroyed,[](){qDebug()<<">>>>>>>>>thread deleted";});
-        thread->start();
-    }
+    QThread* thread = new QThread(this);
+    HCWorker* worker = new HCWorker(this,acess_mutex,recieved_data,new_connection, msModel);
+    connect(thread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    connect(thread, &QThread::started, worker, &HCWorker::handleConnection);
+    connect(worker, &HCWorker::finnished, thread, &QThread::quit);
+    connect(thread, &QThread::destroyed,[](){qDebug()<<">>>>>>>>>thread deleted";});
+    thread->start();
 }
 
 
