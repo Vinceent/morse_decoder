@@ -161,7 +161,7 @@ void MainWindow::on_computeButton_clicked()
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
         out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
 
-        if(code_string.size() <6) {
+        if(code_string.size() <15) {
             graphs.push_back({code_string, valids});        // подходящие строки для визуализации
         }
     }
@@ -195,16 +195,20 @@ void MainWindow::on_visualButton_clicked()
         return;
     }
     ui->logBrowser->append(QString("Сокет %2 подключен к серверу %1\n").arg(sock->serverName()).arg(sock->objectName()));
-    size_t graph_amount = graphs.size();
-    sock->write((char*)&graph_amount, sizeof(graph_amount));
-    QDataStream outp_stream(sock);
+    int graph_amount = graphs.size();
+    //sock->write((char*)&graph_amount, sizeof(graph_amount));
+    //QDataStream outp_stream(sock);
+    QByteArray test;
     for(auto &x: graphs) {
-        outp_stream<<x.getData();
+        test<<x.getData();
+        //outp_stream<<x.getData();
         ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + "  отправлена");
     }
-    connect(sock, &QLocalSocket::bytesWritten,sock, &QLocalSocket::disconnectFromServer);
-    connect(sock, &QLocalSocket::disconnected, sock, &QLocalSocket::close);
+    qDebug()<<test.size();
+    int passed_size = test.size();
+    sock->write((char*)&passed_size, sizeof(int) );
+    sock->write((char*)&graph_amount,sizeof(graph_amount));
+    sock->write(test);
     connect(sock, &QLocalSocket::disconnected, sock, &QObject::deleteLater);
-
     connect(sock, &QObject::destroyed,[this](){ ui->logBrowser->append("Сокет отключен и удален\n");});
 }
