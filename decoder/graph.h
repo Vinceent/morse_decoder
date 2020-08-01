@@ -39,6 +39,8 @@ QDataStream &operator>>(QDataStream &is, graph_data& grd);
 QDataStream &operator<<(QDataStream &os, const graph_data& grd);
 QDataStream &operator<<(QDataStream&os, const std::string &str);
 QDataStream &operator>>(QDataStream& os, std::string &str);
+QByteArray &operator>>(QByteArray&, graph_data&);
+QByteArray &operator<<(QByteArray&,const graph_data&);
 QDebug &operator<<(QDebug& d, const std::string& str);
 
 

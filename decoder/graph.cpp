@@ -46,9 +46,8 @@ QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
     QQueue<int> vert_in_progress;
     vert_in_progress.enqueue(0);
     while(!vert_in_progress.empty()) {
-        int index = vert_in_progress.head();
-        vert_in_progress.dequeue();
-        auto it = graph[index].begin();
+        int index = vert_in_progress.dequeue();
+        auto it = graph[index].begin() + index; //нужен комментарий
         while((it = std::find(it, graph[index].end(), 1))!=graph[index].end()) {
             size_t next_vert_pos = std::distance(graph[index].begin(), it);
             ++it;
@@ -97,16 +96,29 @@ QDataStream &operator>>(QDataStream &is, graph_data& grd)
 QByteArray Graph::getDataFromByteArr()
 {
     QByteArray ret_ar;
-    QDataStream wdstr(&ret_ar, QIODevice::WriteOnly);
-    wdstr<<data;
+    ret_ar<<data;
     return ret_ar;
 }
 
 Graph& Graph::setDataFromByteArr(QByteArray &ba)
 {
-    QDataStream rdstr(ba);
-    rdstr>>data;
+    ba>>data;
     return *this;
+}
+
+
+QByteArray& operator<<(QByteArray& arr, const graph_data &gd)
+{
+    QDataStream str(&arr, QIODevice::WriteOnly);
+    str<<gd;
+    return arr;
+}
+
+QByteArray& operator>>(QByteArray& arr, graph_data &gd)
+{
+    QDataStream str(arr);
+    str>>arr;
+    return arr;
 }
 
 QDebug &operator<<(QDebug &d, const std::string &str)
