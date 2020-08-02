@@ -75,21 +75,20 @@ QDataStream &operator>>(QDataStream& os, std::string &str)
     os>>data;
     str = data;
     delete[] data; //Место для строки выделено с помощью new [] -- вызывающий обязан уничтожить ее с помощью delete [].
-    data = nullptr;
     return os;
 }
 
 QDataStream &operator<<(QDataStream &os, const graph_data& grd)
 {
-    os<<QString::fromStdString(grd.morse_line)<<grd.valids<<grd.graph<<grd.spanning_tree;
+    os<<grd.morse_line.c_str()<<grd.valids<<grd.graph<<grd.spanning_tree;
     return os;
 }
 
 QDataStream &operator>>(QDataStream &is, graph_data& grd)
 {
-    QString temp;
-    is>>temp>>grd.valids>>grd.graph>>grd.spanning_tree;
-    grd.morse_line = temp.toStdString();
+
+    is>>grd.morse_line>>grd.valids>>grd.graph>>grd.spanning_tree;
+
     return is;
 }
 
@@ -117,7 +116,7 @@ QByteArray& operator<<(QByteArray& arr, const graph_data &gd)
 QByteArray& operator>>(QByteArray& arr, graph_data &gd)
 {
     QDataStream str(arr);
-    str>>arr;
+    str>>gd;
     return arr;
 }
 

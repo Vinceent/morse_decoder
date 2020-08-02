@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
-    <height>463</height>
+    <width>505</width>
+    <height>490</height>
    </rect>
   </property>
   <property name="mouseTracking">
@@ -119,6 +119,9 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
@@ -170,7 +173,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
@@ -181,8 +188,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>757</x>
-     <y>454</y>
+     <x>493</x>
+     <y>453</y>
     </hint>
     <hint type="destinationlabel">
      <x>380</x>

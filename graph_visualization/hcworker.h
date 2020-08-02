@@ -15,10 +15,14 @@ public:
         QObject(p), mutex(m), newdata(gdvl),clientConnection(cli), data_model(model) {qDebug()<<">>>>>>>>>>>>>>>>>>~~~~constructed thread";}
     ~HCWorker() {qDebug()<<">>>>>>>>>>>>>>>>>>>>>>>>HCWorker object deleted";}
 private:
+    int grsize =-1;
+    int expectedSize =0;
+    QByteArray buff;
     QMutex &mutex;
     QList<QPair<QString,QVector<graph_data>>> &newdata;
     QLocalSocket * clientConnection;
     MessageListModel *data_model;
+    void send_data();
 public slots:
     void handleConnection();
     void read_when_ready();

@@ -18,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->fileButton->setIcon(QIcon::fromTheme("folder"));
     ui->lineEdit->setReadOnly(true);
     ui->headLabel->setText("Выберите файл с последовательностями кодов морзе");
+    //testing
     ui->logBrowser->setHidden(true);
+    //\testing
     ui->label->clear();
     ui->label_2->clear();
     std::string morse_filename ="morse";
@@ -113,11 +115,10 @@ void MainWindow::on_computeButton_clicked()
         ui->visualButton->setHidden(true);
         return;
     }
-    std::string::size_type slash_pos = code_filename.find_last_of("/");
-    std::string save_filename("decoded_" +std::string(code_filename ,slash_pos+1));
-    std::ofstream out_f(save_filename);
+
     size_t generated_count = 0;
-    std::string full_filename(std::string(code_filename,0,slash_pos+1) + save_filename);
+    std::string full_filename(std::string(code_filename).insert(code_filename.find_last_of("/")+1,"decoded_"));
+    std::ofstream out_f(full_filename);
     std::string delim(80, '=');
 
     graphs.clear();
@@ -159,7 +160,7 @@ void MainWindow::on_computeButton_clicked()
         ui->logBrowser->append( QString("%1 строк создано из (%2), %3-я считаная строка").arg(valids.size()).arg(code_string.c_str()).arg(i +1));
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
-        out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
+        out_f<<"computation time (usec):"<<duration_run<<"\tsave time (usec):"<<duration_save<<'\n';
 
         if(code_string.size() <6) {
             graphs.push_back({code_string, valids});        // подходящие строки для визуализации
@@ -178,33 +179,43 @@ void MainWindow::on_logButton_clicked()
         ui->logButton->setArrowType(Qt::ArrowType::LeftArrow);
         ui->logBrowser->setHidden(false);
 
+        ui->verticalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);     //убирает пустое место под окном логов
+        ui->verticalLayout->invalidate();
     } else {
         ui->logButton->setArrowType(Qt::ArrowType::RightArrow);
         ui->logBrowser->setHidden(true);
+
+        ui->verticalSpacer->changeSize(20,40, QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
 }
 
 void MainWindow::on_visualButton_clicked()
-{
+{                                               //подключение к серверу,серриализация данных и отправка через QLocalSocket
     QLocalSocket *sock =new QLocalSocket(this);
     sock->connectToServer("UniqueServerName");
     if(!sock->waitForConnected(1000000)) {
-        ui->logBrowser->append("Ошибка подключения:" +sock->errorString() +'\n');
+        ui->logBrowser->append("Ошибка подключения:" +sock->errorString());
         ui->logBrowser->append("Не удалось подключится, завершение операции.\n");
         ui->label->setText("Не удалось подключится к серверу");
         return;
     }
-    ui->logBrowser->append(QString("Сокет %2 подключен к серверу %1\n").arg(sock->serverName()).arg(sock->objectName()));
-    size_t graph_amount = graphs.size();
-    sock->write((char*)&graph_amount, sizeof(graph_amount));
-    QDataStream outp_stream(sock);
+    qDebug()<<"sock desk: "<<sock->socketDescriptor();
+    ui->logBrowser->append(QString("\nСокет %1 подключен к серверу %2\n").arg(sock->socketDescriptor()).arg(sock->serverName()));
+    int graph_size = graphs.size();
+    QByteArray send_buff;
+    QDataStream send_str(&send_buff, QIODevice::WriteOnly);
     for(auto &x: graphs) {
-        outp_stream<<x.getData();
-        ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + "  отправлена");
+        send_str<<x.getData();
+        ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + " добавлена в буфер отправки");
     }
-    connect(sock, &QLocalSocket::bytesWritten,sock, &QLocalSocket::disconnectFromServer);
-    connect(sock, &QLocalSocket::disconnected, sock, &QLocalSocket::close);
-    connect(sock, &QLocalSocket::disconnected, sock, &QObject::deleteLater);
+    int passed_size = send_buff.size();
+    ui->logBrowser->append("Байт к отправке: "+QString::number(passed_size));
+    sock->write((char*)&passed_size, sizeof(int) );
 
+    sock->write((char*)&graph_size,sizeof(graph_size));
+    sock->write(send_buff);
+    ui->label->setText(QString::number(graph_size) + "  строк отправлено.");
+    connect(sock, &QLocalSocket::bytesWritten, [this](int b){ui->logBrowser->append(QString::number(b)+ " байт отправлено.");});
+    connect(sock, &QLocalSocket::disconnected, sock, &QObject::deleteLater);
     connect(sock, &QObject::destroyed,[this](){ ui->logBrowser->append("Сокет отключен и удален\n");});
 }
