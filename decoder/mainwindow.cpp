@@ -18,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->fileButton->setIcon(QIcon::fromTheme("folder"));
     ui->lineEdit->setReadOnly(true);
     ui->headLabel->setText("Выберите файл с последовательностями кодов морзе");
+    //testing
     ui->logBrowser->setHidden(true);
+    //\testing
     ui->label->clear();
     ui->label_2->clear();
     std::string morse_filename ="morse";
@@ -177,9 +179,15 @@ void MainWindow::on_logButton_clicked()     //TODO: добавить измен�
     if(ui->logButton->arrowType() == Qt::ArrowType::RightArrow) {
         ui->logButton->setArrowType(Qt::ArrowType::LeftArrow);
         ui->logBrowser->setHidden(false);
+        qDebug()<<ui->verticalSpacer->sizePolicy();
+        ui->verticalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);
+        qDebug()<<ui->verticalSpacer->sizePolicy();
+        ui->verticalLayout->invalidate();
     } else {
         ui->logButton->setArrowType(Qt::ArrowType::RightArrow);
         ui->logBrowser->setHidden(true);
+        ui->verticalSpacer->changeSize(20,40, QSizePolicy::Expanding, QSizePolicy::Expanding);
+        qDebug()<<ui->verticalSpacer->sizePolicy();
     }
 }
 
