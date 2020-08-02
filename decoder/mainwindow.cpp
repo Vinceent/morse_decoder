@@ -115,11 +115,10 @@ void MainWindow::on_computeButton_clicked()
         ui->visualButton->setHidden(true);
         return;
     }
-    std::string::size_type slash_pos = code_filename.find_last_of("/");
-    std::string save_filename("decoded_" +std::string(code_filename ,slash_pos+1));
-    std::ofstream out_f(save_filename);
+
     size_t generated_count = 0;
-    std::string full_filename(std::string(code_filename,0,slash_pos+1) + save_filename);
+    std::string full_filename(std::string(code_filename).insert(code_filename.find_last_of("/")+1,"decoded_"));
+    std::ofstream out_f(full_filename);
     std::string delim(80, '=');
 
     graphs.clear();
@@ -161,9 +160,9 @@ void MainWindow::on_computeButton_clicked()
         ui->logBrowser->append( QString("%1 строк создано из (%2), %3-я считаная строка").arg(valids.size()).arg(code_string.c_str()).arg(i +1));
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
-        out_f<<"computation time (msec):"<<duration_run<<"\tsave time (msec):"<<duration_save<<'\n';
+        out_f<<"computation time (usec):"<<duration_run<<"\tsave time (usec):"<<duration_save<<'\n';
 
-        if(code_string.size() <15) {
+        if(code_string.size() <6) {
             graphs.push_back({code_string, valids});        // подходящие строки для визуализации
         }
     }
@@ -174,25 +173,24 @@ void MainWindow::on_computeButton_clicked()
 }
 
 
-void MainWindow::on_logButton_clicked()     //TODO: добавить изменение size policy у vertivalSpacer (а как?)
+void MainWindow::on_logButton_clicked()
 {
     if(ui->logButton->arrowType() == Qt::ArrowType::RightArrow) {
         ui->logButton->setArrowType(Qt::ArrowType::LeftArrow);
         ui->logBrowser->setHidden(false);
-        qDebug()<<ui->verticalSpacer->sizePolicy();
-        ui->verticalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);
-        qDebug()<<ui->verticalSpacer->sizePolicy();
+
+        ui->verticalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);     //убирает пустое место под окном логов
         ui->verticalLayout->invalidate();
     } else {
         ui->logButton->setArrowType(Qt::ArrowType::RightArrow);
         ui->logBrowser->setHidden(true);
+
         ui->verticalSpacer->changeSize(20,40, QSizePolicy::Expanding, QSizePolicy::Expanding);
-        qDebug()<<ui->verticalSpacer->sizePolicy();
     }
 }
 
 void MainWindow::on_visualButton_clicked()
-{
+{                                               //подключение к серверу,серриализация данных и отправка через QLocalSocket
     QLocalSocket *sock =new QLocalSocket(this);
     sock->connectToServer("UniqueServerName");
     if(!sock->waitForConnected(1000000)) {
@@ -213,10 +211,7 @@ void MainWindow::on_visualButton_clicked()
     int passed_size = send_buff.size();
     ui->logBrowser->append("Байт к отправке: "+QString::number(passed_size));
     sock->write((char*)&passed_size, sizeof(int) );
-    //testing
-    sock->flush();
-    QThread::sleep(1);
-    //\testing
+
     sock->write((char*)&graph_size,sizeof(graph_size));
     sock->write(send_buff);
     ui->label->setText(QString::number(graph_size) + "  строк отправлено.");
