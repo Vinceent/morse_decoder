@@ -37,10 +37,10 @@ void HCWorker::send_data()
     QVector<graph_data> inp;
     graph_data temp;
     QDataStream dstream(buff);
-    qDebug()<<dstream.status();
+    //qDebug()<<buff;
     for(int i =0; i!=grsize;++i) {
         dstream>>temp;
-        qDebug()<<temp.morse_line.size()<<' '<<temp.valids.size()<<' '<<temp.graph.size();
+        qDebug()<<temp.morse_line.size()<<' '<<temp.valids.size()<<' '<<temp.graph.size()<<" "<<temp.spanning_tree.size();
 
         inp.push_back(temp);
     }

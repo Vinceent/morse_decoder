@@ -71,6 +71,7 @@ QDataStream &operator<<(QDataStream&os, const std::string &str)
 
 QDataStream &operator>>(QDataStream& os, std::string &str)
 {
+    qDebug()<<"ran";
     char *data;
     os>>data;
     qDebug()<<"strlen: "<< strlen(data)<<" of "<<data;
@@ -91,7 +92,11 @@ QDataStream &operator>>(QDataStream &is, graph_data& grd)
     //QString temp;
     //is>>temp>>grd.valids>>grd.graph>>grd.spanning_tree;
     //grd.morse_line = temp.toStdString();
-    is>>grd.morse_line>>grd.valids>>grd.graph>>grd.spanning_tree; //testing
+    is>>grd.morse_line;
+    qDebug()<<"morse line obtained";
+    is>>grd.valids;
+    qDebug()<<"valids obtained";
+    is>>grd.graph>>grd.spanning_tree; //testing
 
     return is;
 }

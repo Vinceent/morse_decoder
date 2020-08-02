@@ -199,12 +199,14 @@ void MainWindow::on_visualButton_clicked()
     //sock->write((char*)&graph_amount, sizeof(graph_amount));
     //QDataStream outp_stream(sock);
     QByteArray test;
+    QDataStream ba_str(&test, QIODevice::WriteOnly);
     for(auto &x: graphs) {
-        test<<x.getData();
+        ba_str<<x.getData();
         //outp_stream<<x.getData();
+        qDebug()<<"x sp tree: "<<x.getData().spanning_tree.size();
         ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + "  отправлена");
     }
-    qDebug()<<test.size();
+    //qDebug()<<test;
     int passed_size = test.size();
     sock->write((char*)&passed_size, sizeof(int) );
     sock->write((char*)&graph_amount,sizeof(graph_amount));
