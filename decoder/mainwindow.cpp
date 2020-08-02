@@ -18,13 +18,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->fileButton->setIcon(QIcon::fromTheme("folder"));
     ui->lineEdit->setReadOnly(true);
     ui->headLabel->setText("Выберите файл с последовательностями кодов морзе");
-    //testing
     ui->logBrowser->setHidden(true);
-    //\testing
     ui->label->clear();
     ui->label_2->clear();
     std::string morse_filename ="morse";
-    std::ifstream m_file(morse_filename);                                                   //Reading morse table form the file named "morse".
+    std::ifstream m_file(morse_filename);    //Чтение таблицы морзе в файле
     std::string temp;
     if(m_file.is_open()) {
         while(getline(m_file, temp)){
@@ -49,7 +47,7 @@ void MainWindow::on_fileButton_clicked()
 {
     ui->label_2->clear();
     code_filename = QFileDialog::getOpenFileName(this, "", "~/").toLocal8Bit().constData();     //Convert to cstring, then construct the std::string.
-    ui->lineEdit->setText(QString(code_filename.c_str()));
+    ui->lineEdit->setText(QString::fromStdString(code_filename));
 
 }
 
@@ -133,7 +131,7 @@ void MainWindow::on_computeButton_clicked()
             out_f<<'\n'<<delim<<'\n';
         }
         std::string &code_string = code_strings[i];
-        out_f<<"String "<< i<<'('<<code_string<<"):\n";
+        out_f<<"String "<< i+1 <<'('<<code_string<<"):\n";
         if(code_string.size()>25) {
             auto answ = QMessageBox::question(this, "Предупреждение!",QString("Строка %1 содержит более 25 знаков.\n"
                                                                 "Это может привести к значительному потреблению памяти\n"
@@ -150,13 +148,13 @@ void MainWindow::on_computeButton_clicked()
         QVector<std::string>& valids = Decoder.result();
         auto run_t2 = std::chrono::high_resolution_clock::now();
 
-        ui->headLabel->setText("Готово!");
+        ui->headLabel->setText("Сохраняется...");
         generated_count+=valids.size();
 
         auto save_t1 = std::chrono::high_resolution_clock::now();
         buff_vec_str_outp(out_f, 16000,valids);
         auto save_t2 = std::chrono::high_resolution_clock::now();
-
+        ui->headLabel->setText("Генерация выполнена.");
         ui->logBrowser->append( QString("%1 строк создано из (%2), %3-я считаная строка").arg(valids.size()).arg(code_string.c_str()).arg(i +1));
         auto duration_save = std::chrono::duration_cast<std::chrono::microseconds>( save_t2 - save_t1 ).count();
         auto duration_run = std::chrono::duration_cast<std::chrono::microseconds>( run_t2 - run_t1 ).count();
@@ -199,7 +197,6 @@ void MainWindow::on_visualButton_clicked()
         ui->label->setText("Не удалось подключится к серверу");
         return;
     }
-    qDebug()<<"sock desk: "<<sock->socketDescriptor();
     ui->logBrowser->append(QString("\nСокет %1 подключен к серверу %2\n").arg(sock->socketDescriptor()).arg(sock->serverName()));
     int graph_size = graphs.size();
     QByteArray send_buff;

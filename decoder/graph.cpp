@@ -105,6 +105,16 @@ Graph& Graph::setDataFromByteArr(QByteArray &ba)
     return *this;
 }
 
+bool Graph::is_connected(const graph_data *gd)
+{                                           //Из-за BFS вершины, не соединенные c графом, содержащим первую строку, не будут включены в spanning_tree
+    for(auto& verts: gd->spanning_tree) {
+        if(std::find(verts.begin(), verts.end(), 1) == verts.end()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 QByteArray& operator<<(QByteArray& arr, const graph_data &gd)
 {

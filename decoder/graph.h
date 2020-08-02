@@ -28,12 +28,15 @@ public:
     QByteArray getDataFromByteArr();
     Graph& setDataFromByteArr(QByteArray& ba);
     graph_data & getData() {return data;}       //нарушает инкапсуляцию, но экономит создание нескольких временных объектов
+    static bool is_connected(const graph_data* gd);
 private:
     QVector<QVector<int>> makeGraph(QVector<std::string>&);
     QVector<QVector<int>> BFS(QVector<QVector<int>> graph);
     bool is_one_space_diff(const std::string& s1, const std::string& s2);
     graph_data data;
 };
+
+//bool Graph::is_connected(graph_data& gd);
 
 QDataStream &operator>>(QDataStream &is, graph_data& grd);
 QDataStream &operator<<(QDataStream &os, const graph_data& grd);

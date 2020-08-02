@@ -39,7 +39,7 @@ void HCWorker::send_data()
         dstream>>temp;
         inp.push_back(temp);
     }
-    QString time ="Получено "+ QTime::currentTime().toString("h:m:s.zzz");
+    QString time ="Получено "+ QTime::currentTime().toString("hh:mm:ss.zzz");
     mutex.lock();
     qDebug()<<"mutex locked in thread";
     newdata.push_back({std::move(time),std::move(inp)});

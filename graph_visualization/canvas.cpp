@@ -9,7 +9,16 @@ Canvas::Canvas(QWidget *parent) : QWidget(parent)
 void Canvas::paintEvent(QPaintEvent * pe)
 {
     if(data) {
+
         QPainter painter(this);
+        if(!Graph::is_connected(data)) {
+            QFont font = painter.font();
+            font.setPointSize(font.pointSize()*2);
+            painter.setFont(font);
+            painter.setPen(Qt::red);
+            painter.drawText(this->rect(), Qt::AlignCenter, "ОШИБКА, НЕСВЯЗНЫЙ ГРАФ");
+            return;
+        }
         QVector<QPoint> vertx_points = computeGraphVerticesPos(data);
         QBrush circle_brush(Qt::green, Qt::BrushStyle::SolidPattern);
         painter.setBrush(circle_brush);
