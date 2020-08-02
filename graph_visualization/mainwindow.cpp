@@ -40,7 +40,7 @@ void MainWindow::handle_connection()
 
     QThread* thread = new QThread(this);
     HCWorker* worker = new HCWorker(this,acess_mutex,recieved_data,new_connection, msModel);
-    connect(new_connection, &QLocalSocket::readyRead, worker, &HCWorker::read_when_ready);
+    //connect(new_connection, &QLocalSocket::readyRead, worker, &HCWorker::read_when_ready);
     connect(thread, &QThread::finished, worker, &QObject::deleteLater);
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
     connect(thread, &QThread::started, worker, &HCWorker::handleConnection);

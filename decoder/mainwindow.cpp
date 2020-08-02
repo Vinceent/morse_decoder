@@ -172,12 +172,11 @@ void MainWindow::on_computeButton_clicked()
 }
 
 
-void MainWindow::on_logButton_clicked()
+void MainWindow::on_logButton_clicked()     //TODO: добавить изменение size policy у vertivalSpacer (а как?)
 {
     if(ui->logButton->arrowType() == Qt::ArrowType::RightArrow) {
         ui->logButton->setArrowType(Qt::ArrowType::LeftArrow);
         ui->logBrowser->setHidden(false);
-
     } else {
         ui->logButton->setArrowType(Qt::ArrowType::RightArrow);
         ui->logBrowser->setHidden(true);
@@ -189,28 +188,31 @@ void MainWindow::on_visualButton_clicked()
     QLocalSocket *sock =new QLocalSocket(this);
     sock->connectToServer("UniqueServerName");
     if(!sock->waitForConnected(1000000)) {
-        ui->logBrowser->append("Ошибка подключения:" +sock->errorString() +'\n');
+        ui->logBrowser->append("Ошибка подключения:" +sock->errorString());
         ui->logBrowser->append("Не удалось подключится, завершение операции.\n");
         ui->label->setText("Не удалось подключится к серверу");
         return;
     }
-    ui->logBrowser->append(QString("Сокет %2 подключен к серверу %1\n").arg(sock->serverName()).arg(sock->objectName()));
-    int graph_amount = graphs.size();
-    //sock->write((char*)&graph_amount, sizeof(graph_amount));
-    //QDataStream outp_stream(sock);
-    QByteArray test;
-    QDataStream ba_str(&test, QIODevice::WriteOnly);
+    qDebug()<<"sock desk: "<<sock->socketDescriptor();
+    ui->logBrowser->append(QString("\nСокет %1 подключен к серверу %2\n").arg(sock->socketDescriptor()).arg(sock->serverName()));
+    int graph_size = graphs.size();
+    QByteArray send_buff;
+    QDataStream send_str(&send_buff, QIODevice::WriteOnly);
     for(auto &x: graphs) {
-        ba_str<<x.getData();
-        //outp_stream<<x.getData();
-        qDebug()<<"x sp tree: "<<x.getData().spanning_tree.size();
-        ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + "  отправлена");
+        send_str<<x.getData();
+        ui->logBrowser->append(QString::fromStdString("Строка "+x.getData().morse_line) + " добавлена в буфер отправки");
     }
-    //qDebug()<<test;
-    int passed_size = test.size();
+    int passed_size = send_buff.size();
+    ui->logBrowser->append("Байт к отправке: "+QString::number(passed_size));
     sock->write((char*)&passed_size, sizeof(int) );
-    sock->write((char*)&graph_amount,sizeof(graph_amount));
-    sock->write(test);
+    //testing
+    sock->flush();
+    QThread::sleep(1);
+    //\testing
+    sock->write((char*)&graph_size,sizeof(graph_size));
+    sock->write(send_buff);
+    ui->label->setText(QString::number(graph_size) + "  строк отправлено.");
+    connect(sock, &QLocalSocket::bytesWritten, [this](int b){ui->logBrowser->append(QString::number(b)+ " байт отправлено.");});
     connect(sock, &QLocalSocket::disconnected, sock, &QObject::deleteLater);
     connect(sock, &QObject::destroyed,[this](){ ui->logBrowser->append("Сокет отключен и удален\n");});
 }
