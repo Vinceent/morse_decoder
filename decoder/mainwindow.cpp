@@ -8,7 +8,6 @@
 #include<QMessageBox>
 #include<chrono>
 #include<QDebug>
-#include<QThread>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

@@ -1,10 +1,5 @@
 #include "hcworker.h"
 
-void HCWorker::handleConnection()
-{
-    connect(clientConnection,&QLocalSocket::readyRead, this, &HCWorker::read_when_ready);
-}
-
 void HCWorker::read_when_ready()
 {
     if(!expectedSize && clientConnection->bytesAvailable()) {
@@ -41,10 +36,11 @@ void HCWorker::send_data()
     }
     QString time ="Получено "+ QTime::currentTime().toString("hh:mm:ss.zzz");
     mutex.lock();
-    qDebug()<<"mutex locked in thread";
+    qDebug()<<"mutex locked";
     newdata.push_back({std::move(time),std::move(inp)});
+
     data_model->layoutChanged();
-    qDebug()<<"mutex unlocked in thread";
+    qDebug()<<"mutex unlocked";
     mutex.unlock();
     emit finnished();
 }
