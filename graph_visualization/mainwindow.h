@@ -5,7 +5,7 @@
 #include<QLocalServer>
 #include <QList>
 #include<../decoder/graph.h>
-#include"hcworker.h"
+#include"connectionhandler.h"
 #include"messagelistmodel.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

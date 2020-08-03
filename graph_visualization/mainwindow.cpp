@@ -38,9 +38,9 @@ void MainWindow::handle_connection()
     qDebug()<<"handle connection";
     QLocalSocket *new_connection = server->nextPendingConnection();
 
-    HCWorker* worker = new HCWorker(this,acess_mutex,recieved_data,new_connection, msModel);
-    connect(new_connection, &QLocalSocket::readyRead, worker, &HCWorker::read_when_ready);
-    connect(worker, &HCWorker::finnished, worker, &QObject::deleteLater);
+    connectionHandler* handler = new connectionHandler(this,acess_mutex,recieved_data,new_connection, msModel);
+    connect(new_connection, &QLocalSocket::readyRead, handler, &connectionHandler::read_when_ready);
+    connect(handler, &connectionHandler::finished, handler, &QObject::deleteLater);
 
 }
 

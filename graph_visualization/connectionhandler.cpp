@@ -1,6 +1,6 @@
-#include "hcworker.h"
+#include "connectionhandler.h"
 
-void HCWorker::read_when_ready()
+void connectionHandler::read_when_ready()
 {
     if(!expectedSize && clientConnection->bytesAvailable()) {
         clientConnection->read((char*)&expectedSize, sizeof(int));
@@ -25,7 +25,7 @@ void HCWorker::read_when_ready()
         }
     }
 }
-void HCWorker::send_data()
+void connectionHandler::send_data()
 {
     QVector<graph_data> inp;
     graph_data temp;
@@ -35,12 +35,8 @@ void HCWorker::send_data()
         inp.push_back(temp);
     }
     QString time ="Получено "+ QTime::currentTime().toString("hh:mm:ss.zzz");
-    mutex.lock();
-    qDebug()<<"mutex locked";
     newdata.push_back({std::move(time),std::move(inp)});
 
     data_model->layoutChanged();
-    qDebug()<<"mutex unlocked";
-    mutex.unlock();
-    emit finnished();
+    emit finished();
 }

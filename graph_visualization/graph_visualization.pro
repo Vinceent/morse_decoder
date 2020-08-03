@@ -18,7 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     ../decoder/graph.cpp \
     canvas.cpp \
-    hcworker.cpp \
+    connectionhandler.cpp \
     main.cpp \
     mainwindow.cpp \
     messagelistmodel.cpp
@@ -26,7 +26,7 @@ SOURCES += \
 HEADERS += \
     ../decoder/graph.h \
     canvas.h \
-    hcworker.h \
+    connectionhandler.h \
     mainwindow.h \
     messagelistmodel.h
 
