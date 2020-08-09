@@ -21,7 +21,7 @@ bool Graph::is_one_space_diff(const std::string& s1, const std::string& s2)
         (s1.substr(pos) == s2.substr(pos+1));
 }
 
-QVector<QVector<int>> Graph::makeGraph(QVector<std::string>& valids)
+QVector<QVector<bool>> Graph::makeGraph(QVector<std::string>& valids)
 {
     size_t valid_count = valids.size();
     data.graph.resize(valid_count);
@@ -33,7 +33,7 @@ QVector<QVector<int>> Graph::makeGraph(QVector<std::string>& valids)
     return data.graph;
 }
 
-QVector<QVector<int> > Graph::BFS(QVector<QVector<int> > graph)
+QVector<QVector<bool> > Graph::BFS(QVector<QVector<bool> > graph)
 //поиск в ширину как простая и быстрая альтернатива для нахождения остовного дерева в невзвешенном графе
 {
     enum {WHITE, GRAY, BLACK};

@@ -11,11 +11,10 @@
 struct graph_data{
     std::string morse_line;
     QVector<std::string> valids;
-    QVector<QVector<int>> graph;
-    QVector<QVector<int>> spanning_tree;
+    QVector<QVector<bool>> graph;
+    QVector<QVector<bool>> spanning_tree;
 
 };
-
 class Graph
 {
 public:
@@ -30,8 +29,8 @@ public:
     graph_data & getData() {return data;}       //нарушает инкапсуляцию, но экономит создание нескольких временных объектов
     static bool is_connected(const graph_data* gd);
 private:
-    QVector<QVector<int>> makeGraph(QVector<std::string>&);
-    QVector<QVector<int>> BFS(QVector<QVector<int>> graph);
+    QVector<QVector<bool>> makeGraph(QVector<std::string>&);
+    QVector<QVector<bool>> BFS(QVector<QVector<bool>> graph);
     bool is_one_space_diff(const std::string& s1, const std::string& s2);
     graph_data data;
 };
