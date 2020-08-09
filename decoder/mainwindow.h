@@ -31,7 +31,7 @@ private:
     bool set_code_strings();
     std::set<std::string> m_table;
     Ui::MainWindow *ui;
-    std::string code_filename;
+    QString code_filename;
     QVector<std::string> code_strings;
     QVector<Graph> graphs;
 

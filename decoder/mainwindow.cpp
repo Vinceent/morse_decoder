@@ -45,15 +45,15 @@ MainWindow::~MainWindow()
 void MainWindow::on_fileButton_clicked()
 {
     ui->label_2->clear();
-    code_filename = QFileDialog::getOpenFileName(this, "", "~/").toLocal8Bit().constData();     //Convert to cstring, then construct the std::string.
-    ui->lineEdit->setText(QString::fromStdString(code_filename));
+    code_filename = QFileDialog::getOpenFileName(this, "", "~/");     //Convert to cstring, then construct the std::string.
+    ui->lineEdit->setText(code_filename);
 
 }
 
 bool MainWindow::set_code_strings()
 {
     code_strings.clear();
-    std::ifstream fs(code_filename);
+    std::ifstream fs(code_filename.toStdString());
     if(!fs.is_open()) {
         QMessageBox::question(this, "Ошибка!", "Не удалось открыть файл", QMessageBox::Ok);
         return false;
@@ -114,8 +114,10 @@ void MainWindow::on_computeButton_clicked()
     }
 
     size_t generated_count = 0;
-    std::string full_filename(std::string(code_filename).insert(code_filename.find_last_of("/")+1,"decoded_"));
-    std::ofstream out_f(full_filename);
+
+    QString full_filename(code_filename.section('/',0,-2) +"/decoded_" +code_filename.section('/',-1));
+
+    std::ofstream out_f(full_filename.toStdString());
     std::string delim(80, '=');
 
     graphs.clear();
@@ -164,7 +166,7 @@ void MainWindow::on_computeButton_clicked()
         }
     }
     ui->label_2->setText(QString::number(generated_count) +" строк было сгенерировано.\n" +
-                         "Валидные строки сохранены в :\n" + QString::fromStdString(full_filename));
+                         "Валидные строки сохранены в :\n" + full_filename);
     out_f.close();
     ui->visualButton->setHidden(false);
 }
